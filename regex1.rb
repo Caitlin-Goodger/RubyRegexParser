@@ -61,3 +61,15 @@ elsif ARGV.length == 2
 	exFile.close
 	tarFile.close
 end
+
+class Token
+	$name = ""
+	$value = ""
+
+	def initialize(n,v)
+		$name = n
+		$value = v
+	end
+
+end
+
