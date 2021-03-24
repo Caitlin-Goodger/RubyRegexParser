@@ -9,9 +9,11 @@ elsif ARGV.length == 2
 	targets = ARGV[1]
 	exLines = File.readlines(expressions)
 	tarLines = File.readlines(targets)
-	(0..exLines.size).each { |i|
+	(0..exLines.size-1).each { |i|
 		expression = exLines[i];
 		target = tarLines[i];
+		puts expression
+		puts target
 		if expression == target
 			puts "Yes"
 		else
