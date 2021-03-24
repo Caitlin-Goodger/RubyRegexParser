@@ -7,17 +7,25 @@ elsif ARGV.length > 2
 elsif ARGV.length == 2
 	expressions = ARGV[0]
 	targets = ARGV[1]
-	exLines = File.readlines(expressions)
-	tarLines = File.readlines(targets)
+	output = File.open("output.txt","w")
+	exFile = File.open(expressions)
+	exLines = File.read(exFile).split("\n")
+	tarFile = File.open(targets)
+	tarLines = File.read(targets).split("\n")
+	puts exLines.size
 	(0..exLines.size-1).each { |i|
 		expression = exLines[i];
 		target = tarLines[i];
-		puts expression
-		puts target
+		# puts expression
+		# puts target
 		if expression == target
-			puts "Yes"
+			puts "YES: " + expression +  " with " + target + "\n"
+			output.write("YES: " + expression +  " with " + target + "\n")
 		else
-			puts "No"
+			puts "NO:" + "\n"
+			output.write("NO:" + "\n")
 		end
 	}
+	exFile.close
+	tarFile.close
 end
