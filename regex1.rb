@@ -1,3 +1,25 @@
+def EvenBrackets(expression)
+	openBrackets = expression.count("(")
+	closeBrackets = expression.count(")")
+	return openBrackets == closeBrackets
+end
+
+def correctAstrix(expression)
+	if expression[0] == "*"
+		return false
+	end
+	(1..expression.size-1).each { |i|
+		if expression[i] == "*"
+			if expression[i-1] == "|" || expression[i-1] == "("
+				return false
+			end
+		end
+	}
+	return true
+end
+
+
+
 if ARGV.length < 2
     puts "Too few arguments"
     exit
@@ -18,12 +40,22 @@ elsif ARGV.length == 2
 		target = tarLines[i];
 		# puts expression
 		# puts target
-		if expression == target
+		match = false
+		if target == expression
+			puts "YES: " + expression +  " with " + target + "\n"
+			output.write("YES: " + expression +  " with " + target + "\n")
+		elsif !EvenBrackets(expression)
+			puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
+			output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
+		elsif !correctAstrix(expression)
+			puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
+			output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
+		elsif target.match(/^(expression)$/)
 			puts "YES: " + expression +  " with " + target + "\n"
 			output.write("YES: " + expression +  " with " + target + "\n")
 		else
-			puts "NO:" + "\n"
-			output.write("NO:" + "\n")
+			puts "NO: " + expression +  " with " + target + "\n"
+			output.write("NO: " + expression +  " with " + target + "\n")
 		end
 	}
 	exFile.close
