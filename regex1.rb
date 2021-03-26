@@ -41,6 +41,18 @@ class Regex1
 		end
 	end
 
+	def compareFirst(expression,target)
+		if target.empty? || target.empty?
+			return false
+		elsif expression == target
+			return true
+		elsif expression == "."
+			return true
+		else
+			return false
+		end
+	end
+
 	if ARGV.length < 2
 		puts "Too few arguments"
 		exit
