@@ -25,71 +25,119 @@ class Regex1
 		}
 		return true
 	end
-
-	def match(expression,target)
-		if(target.nil? || target.empty?) && (expression.nil? || expression.empty?)
+	def self.completeMatching(expression, target)
+		if (expression.nil? || expression.empty?) && (target.nil? || target.empty?)
 			return true
-		elsif expression[1] == "*"
-			return astrickMatch(expression,target)
-		elsif expression[0] == "("
-			return bracketMatch(expression,target)
-		elsif expression.include?("|")
-			return orMatch(expression,target)
+		elsif expression[1] == '*'
+			return astrickMatch(expression, target)
+		elsif expression[0] == '('
+			return bracketMatch(expression, target)
+		elsif expression.include?('|')
+			return orMatch(expression, target)
 		else
-			return compareFirst(expression[0],target[0]) && match(expression.drop(1),target.drop(1))
-			#compareFirst(expression[0],target[0]) && match(expression[1...expression.size()],target[1...target.size()])
+			return compareFirst(expression[0], target[0]) && completeMatching(expression.drop(1), target.drop(1))
 		end
 	end
 
-	def astrickMatch(expression,target)
-		return compareFirst(expression,target) && (match(expression,target.drop(1)) || match(expression,target.drop(2)))
+	def self.astrickMatch(expression, target)
+		compareFirst(expression[0], target[0]) && completeMatching(expression, target.drop(1)) || completeMatching(expression.drop(2), target)
 	end
 
-	def bracketMatch(expression,target)
-		endBracketIndex = findClosingBracket(expression,target)
-
-	end
-
-	def orMatch(expression,target)
-		firstOr = expression.index("|")
-		beforeOr = expression[0,firstOr]
-		afterOr = expression[firstOr+1,expression.size]
-		return match(beforeOr,target) || match(afterOr,target)
-	end
-
-	def compareFirst(expression,target)
-		if target.empty? || target.empty?
+	def self.bracketMatch (expression, target)
+		endBracketIndex = findEndBracket(expression)
+		bracket = expression[1, endBracketIndex-1]
+		if bracket.last == '*'
 			return false
+		end
+		if expression[endBracketIndex + 1] == '*'
+			left = expression.drop(endBracketIndex + 2)
+			if bracket.include?('|') && findOrIndex(bracket) != 99
+				orIndex = findOrIndex(bracket)
+				(completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
+					(completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
+				beforeOr = bracket[0, orIndex]
+				afterOr = bracket[orIndex+1, bracket.size]
+			else
+				(completeMatching(bracket, target[0, bracket.size]) && completeMatching(expression, target.drop(bracket.size))) || completeMatching(left, target)
+			end
+		elsif bracket.include?('|') && findOrIndex(bracket) != 99
+			left = expression.drop(endBracketIndex + 1)
+			orIndex = findOrIndex(bracket)
+			beforeOr = bracket[0, orIndex]
+			afterOr = bracket[orIndex+1, bracket.size]
+			insideBefore = beforeOr - ["("] - [")"]
+			insideAfter = afterOr - ["("] - [")"]
+			completeMatching(beforeOr, target[0, insideBefore.size]) && completeMatching(left, target.drop(insideBefore.size)) ||
+				completeMatching(afterOr, target[0, insideAfter.size]) && completeMatching(left, target.drop(insideAfter.size))
+		else
+			left = expression.drop(endBracketIndex + 1)
+			inside = bracket - ["("] - [")"]
+			completeMatching(bracket, target[0, inside.size]) && completeMatching(left, target.drop(inside.size))
+		end
+	end
+
+	def self.orMatch(expression, target)
+		orIndex = expression.index('|')
+		beforeOr = expression[0, orIndex]
+		afterOr = expression[orIndex+1, expression.size]
+		completeMatching(beforeOr, target) || completeMatching(afterOr, target)
+	end
+
+	def self.compareFirst(expression, target)
+		if target.nil? || target.empty?
+			return false
+		elsif expression == '.'
+			return true
 		elsif expression == target
 			return true
-		elsif expression == "."
-			return true
 		else
 			return false
 		end
 	end
 
-	def findClosingBracket(expression,target)
-		endBracket = 1
-		i = 1;
+	def self.findEndBracket(expression)
+		endBracket = 0
+		i = 1
 		while i > 0
+			endBracket += 1
 			c = expression[endBracket]
-			if c == "("
-				i = i+1
-			elsif c == ")"
-				i = i -1
+			if c == '('
+				i += 1
+			elsif c == ')'
+				i -= 1
+			elsif endBracket == 99
+				break
 			end
 		end
-		return endBracket
+		endBracket
 	end
 
-	if ARGV.length < 2
+	def self.findOrIndex(expression)
+		orIndex = -1
+		i = 1
+		while i > 0
+			orIndex += 1
+			c = expression[orIndex]
+			if c == '('
+				i += 1
+			elsif c == ')'
+				i -= 1
+			elsif c == '|' && i == 1
+				return orIndex
+			elsif orIndex == 99
+				return orIndex
+				break
+			end
+		end
+	end
+
+	if ARGV.size < 2
 		puts "Too few arguments"
 		exit
-	elsif ARGV.length > 2
+	elsif ARGV.size > 2
 		puts "Too many arguments"
 		exit
-	elsif ARGV.length == 2
+	elsif ARGV.size == 2
 		expressions = ARGV[0]
 		targets = ARGV[1]
 		output = File.open("output.txt","w")
@@ -104,23 +152,26 @@ class Regex1
 			# puts expression
 			# puts target
 			match = false
-			if target == expression
-				puts "YES: " + expression +  " with " + target + "\n"
-				output.write("YES: " + expression +  " with " + target + "\n")
-			elsif !evenBrackets(expression)
+			# if target == expression
+			# 	puts "YES: " + expression +  " with " + target + "\n"
+			# 	output.write("YES: " + expression +  " with " + target + "\n")
+			if !evenBrackets(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
 			elsif !correctasterick(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-			elsif target.match(/^(expression)$/)
-				puts "YES: " + expression +  " with " + target + "\n"
-				output.write("YES: " + expression +  " with " + target + "\n")
+
 			else
-				#l = Lex.new(expression)
-				#puts l.get_token()
-				puts "NO: " + expression +  " with " + target + "\n"
-				output.write("NO: " + expression +  " with " + target + "\n")
+				if completeMatching(expression.chars, target.chars)
+					puts "YES: " + expression +  " with " + target + "\n"
+					output.write("YES: " + expression +  " with " + target + "\n")
+				else
+					#l = Lex.new(expression)
+					#puts l.get_token()
+					puts "NO: " + expression +  " with " + target + "\n"
+					output.write("NO: " + expression +  " with " + target + "\n")
+				end
 			end
 		}
 		exFile.close
