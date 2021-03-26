@@ -5,13 +5,14 @@ class Regex1
 		super
 	end
 
+
 	def self.evenBrackets(expression)
 		openBrackets = expression.count("(")
 		closeBrackets = expression.count(")")
 		return openBrackets == closeBrackets
 	end
 
-	def self.correctastrix(expression)
+	def self.correctasterick(expression)
 		if expression[0] == "*"
 			return false
 		end
@@ -23,6 +24,21 @@ class Regex1
 			end
 		}
 		return true
+	end
+
+	def match(expression,target)
+		if(target.nil? || target.empty?) && (expression.nil? || expression.empty?)
+			return true
+		elsif expression[1] == "*"
+			return astrickMatch(expression,target)
+		elsif expression[0] == "("
+			return bracketMatch(expression,target)
+		elsif expression.include?("|")
+			return orMatch(expression,target)
+		else
+			return compareFirst(expression[0],target[0]) && match(expression.drop(1),target.drop(1))
+			#compareFirst(expression[0],target[0]) && match(expression[1...expression.size()],target[1...target.size()])
+		end
 	end
 
 	if ARGV.length < 2
@@ -52,7 +68,7 @@ class Regex1
 			elsif !evenBrackets(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-			elsif !correctastrix(expression)
+			elsif !correctasterick(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
 			elsif target.match(/^(expression)$/)
@@ -70,43 +86,43 @@ class Regex1
 	end
 end
 
-class Token
-	$name = ""
-	$value = ""
-
-	def initialize(n,v)
-		$name = n
-		$value = v
-	end
-
-end
-
-class Testing
-	$pattern = ""
-	$symbols = Hash.new()
-	$current = 0
-	$length = 0;
-
-	def initialize(p)
-		$pattern = p;
-		$symbols = { "(" => "LEFT_PAREN" , ")" => "RIGHT_PAREN", "*" => "AST", "|" => "OR", "." => "DOT"}
-		$current = 0;
-		$length = p.length
-	end
-
-	def get_token
-		if $current < $length
-			cur = $pattern[$current]
-			$current = $current + 1
-
-			if !$symbols.has_key?(cur)
-				return new Token("CHAR",cur)
-			else
-				return new Token([cur],cur)
-			end
-		else
-			return Token("NONE","")
-		end
-	end
-end
-
+# class Token
+# 	$name = ""
+# 	$value = ""
+#
+# 	def initialize(n,v)
+# 		$name = n
+# 		$value = v
+# 	end
+#
+# end
+#
+# class Testing
+# 	$pattern = ""
+# 	$symbols = Hash.new()
+# 	$current = 0
+# 	$length = 0;
+#
+# 	def initialize(p)
+# 		$pattern = p;
+# 		$symbols = { "(" => "LEFT_PAREN" , ")" => "RIGHT_PAREN", "*" => "AST", "|" => "OR", "." => "DOT"}
+# 		$current = 0;
+# 		$length = p.length
+# 	end
+#
+# 	def get_token
+# 		if $current < $length
+# 			cur = $pattern[$current]
+# 			$current = $current + 1
+#
+# 			if !$symbols.has_key?(cur)
+# 				return new Token("CHAR",cur)
+# 			else
+# 				return new Token([cur],cur)
+# 			end
+# 		else
+# 			return Token("NONE","")
+# 		end
+# 	end
+# end
+#
