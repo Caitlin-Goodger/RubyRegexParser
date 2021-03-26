@@ -41,6 +41,10 @@ class Regex1
 		end
 	end
 
+	def astrickMatch(expression,target)
+		compareFirst(expression,target) && (match(expression,target.drop(1)) || match(expression,target.drop(2)))
+	end
+
 	def compareFirst(expression,target)
 		if target.empty? || target.empty?
 			return false
