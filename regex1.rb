@@ -42,7 +42,14 @@ class Regex1
 	end
 
 	def astrickMatch(expression,target)
-		compareFirst(expression,target) && (match(expression,target.drop(1)) || match(expression,target.drop(2)))
+		return compareFirst(expression,target) && (match(expression,target.drop(1)) || match(expression,target.drop(2)))
+	end
+
+	def orMatch(expression,target)
+		firstOr = expression.index("|")
+		beforeOr = expression[0,firstOr]
+		afterOr = expression[firstOr+1,expression.size]
+		return match(beforeOr,target) || match(afterOr,target)
 	end
 
 	def compareFirst(expression,target)
