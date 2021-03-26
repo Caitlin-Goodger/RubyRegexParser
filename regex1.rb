@@ -28,11 +28,11 @@ class Regex1
 	def self.completeMatching(expression, target)
 		if (expression.nil? || expression.empty?) && (target.nil? || target.empty?)
 			return true
-		elsif expression[1] == '*'
+		elsif expression[1] == "*"
 			return astrickMatch(expression, target)
-		elsif expression[0] == '('
+		elsif expression[0] == "("
 			return bracketMatch(expression, target)
-		elsif expression.include?('|')
+		elsif expression.include?("|")
 			return orMatch(expression, target)
 		else
 			return compareFirst(expression[0], target[0]) && completeMatching(expression.drop(1), target.drop(1))
@@ -46,38 +46,39 @@ class Regex1
 	def self.bracketMatch (expression, target)
 		endBracketIndex = findEndBracket(expression)
 		bracket = expression[1, endBracketIndex-1]
-		if bracket.last == '*'
+		if bracket.last == "*"
 			return false
 		end
-		if expression[endBracketIndex + 1] == '*'
+		if expression[endBracketIndex + 1] == "*"
 			left = expression.drop(endBracketIndex + 2)
-			if bracket.include?('|') && findOrIndex(bracket) != 99
+			if bracket.include?("|") && findOrIndex(bracket) != 99
 				orIndex = findOrIndex(bracket)
-				(completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
-					(completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
 				beforeOr = bracket[0, orIndex]
 				afterOr = bracket[orIndex+1, bracket.size]
+				(completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
+					(completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
+
 			else
 				(completeMatching(bracket, target[0, bracket.size]) && completeMatching(expression, target.drop(bracket.size))) || completeMatching(left, target)
 			end
-		elsif bracket.include?('|') && findOrIndex(bracket) != 99
+		elsif bracket.include?("|") && findOrIndex(bracket) != 99
 			left = expression.drop(endBracketIndex + 1)
 			orIndex = findOrIndex(bracket)
 			beforeOr = bracket[0, orIndex]
 			afterOr = bracket[orIndex+1, bracket.size]
-			insideBefore = beforeOr - ["("] - [")"]
-			insideAfter = afterOr - ["("] - [")"]
-			completeMatching(beforeOr, target[0, insideBefore.size]) && completeMatching(left, target.drop(insideBefore.size)) ||
-				completeMatching(afterOr, target[0, insideAfter.size]) && completeMatching(left, target.drop(insideAfter.size))
+			completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(left, target.drop(beforeOr.size)) ||
+				completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(left, target.drop(afterOr.size))
 		else
 			left = expression.drop(endBracketIndex + 1)
 			inside = bracket - ["("] - [")"]
+			#puts bracket
+			#puts inside
 			completeMatching(bracket, target[0, inside.size]) && completeMatching(left, target.drop(inside.size))
 		end
 	end
 
 	def self.orMatch(expression, target)
-		orIndex = expression.index('|')
+		orIndex = expression.index("|")
 		beforeOr = expression[0, orIndex]
 		afterOr = expression[orIndex+1, expression.size]
 		completeMatching(beforeOr, target) || completeMatching(afterOr, target)
@@ -86,7 +87,7 @@ class Regex1
 	def self.compareFirst(expression, target)
 		if target.nil? || target.empty?
 			return false
-		elsif expression == '.'
+		elsif expression == "."
 			return true
 		elsif expression == target
 			return true
@@ -101,9 +102,9 @@ class Regex1
 		while i > 0
 			endBracket += 1
 			c = expression[endBracket]
-			if c == '('
+			if c == "("
 				i += 1
-			elsif c == ')'
+			elsif c == ")"
 				i -= 1
 			elsif endBracket == 99
 				break
@@ -118,11 +119,11 @@ class Regex1
 		while i > 0
 			orIndex += 1
 			c = expression[orIndex]
-			if c == '('
+			if c == "("
 				i += 1
-			elsif c == ')'
+			elsif c == ")"
 				i -= 1
-			elsif c == '|' && i == 1
+			elsif c == "|"
 				return orIndex
 			elsif orIndex == 99
 				return orIndex
@@ -140,6 +141,8 @@ class Regex1
 	elsif ARGV.size == 2
 		expressions = ARGV[0]
 		targets = ARGV[1]
+
+
 		output = File.open("output.txt","w")
 		exFile = File.open(expressions)
 		exLines = File.read(exFile).split("\n")
@@ -161,7 +164,6 @@ class Regex1
 			elsif !correctasterick(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-
 			else
 				if completeMatching(expression.chars, target.chars)
 					puts "YES: " + expression +  " with " + target + "\n"
