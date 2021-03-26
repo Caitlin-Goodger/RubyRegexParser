@@ -45,6 +45,11 @@ class Regex1
 		return compareFirst(expression,target) && (match(expression,target.drop(1)) || match(expression,target.drop(2)))
 	end
 
+	def bracketMatch(expression,target)
+		endBracketIndex = findClosingBracket(expression,target)
+
+	end
+
 	def orMatch(expression,target)
 		firstOr = expression.index("|")
 		beforeOr = expression[0,firstOr]
@@ -62,6 +67,20 @@ class Regex1
 		else
 			return false
 		end
+	end
+
+	def findClosingBracket(expression,target)
+		endBracket = 1
+		i = 1;
+		while i > 0
+			c = expression[endBracket]
+			if c == "("
+				i = i+1
+			elsif c == ")"
+				i = i -1
+			end
+		end
+		return endBracket
 	end
 
 	if ARGV.length < 2
