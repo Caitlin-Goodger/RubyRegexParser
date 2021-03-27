@@ -6,13 +6,13 @@ class Regex1
 	end
 
 
-	def self.evenBrackets(expression)
+	def self.evenBrackets(expression,target)
 		openBrackets = expression.count("(")
 		closeBrackets = expression.count(")")
 		return openBrackets == closeBrackets
 	end
 
-	def self.correctasterick(expression)
+	def self.correctasterick(expression,target)
 		if expression[0] == "*"
 			return false
 		end
@@ -25,6 +25,25 @@ class Regex1
 		}
 		return true
 	end
+
+	def self.findEndBracket(expression,target)
+		endBracket = 0
+		i = 1
+		while i > 0
+			endBracket = endBracket + 1
+			c = expression[endBracket]
+			if c == "("
+				i = i + 1
+			elsif c == ")"
+				i = i - 1
+			elsif endBracket == 42
+				break
+			end
+		end
+		return endBracket
+	end
+
+
 	def self.completeMatching(expression, target)
 		if (expression.nil? || expression.empty?) && (target.nil? || target.empty?)
 			return true
@@ -44,7 +63,7 @@ class Regex1
 	end
 
 	def self.bracketMatch (expression, target)
-		endBracketIndex = findEndBracket(expression)
+		endBracketIndex = findEndBracket(expression,target)
 		bracket = expression[1, endBracketIndex-1]
 		if bracket.last == "*"
 			return false
@@ -91,22 +110,6 @@ class Regex1
 		end
 	end
 
-	def self.findEndBracket(expression)
-		endBracket = 0
-		i = 1
-		while i > 0
-			endBracket += 1
-			c = expression[endBracket]
-			if c == "("
-				i = i + 1
-			elsif c == ")"
-				i = i - 1
-			elsif endBracket == 99
-				break
-			end
-		end
-		return endBracket
-	end
 
 	if ARGV.size < 2
 		puts "Too few arguments"
@@ -123,13 +126,19 @@ class Regex1
 		exLines = File.read(exFile).split("\n")
 		tarFile = File.open(targets)
 		tarLines = File.read(targets).split("\n")
+		rescue
+			puts "Arguments given are not files"
+			exit
+		end
+
+		begin
 		(0..exLines.size-1).each { |i|
 			expression = exLines[i];
 			target = tarLines[i];
-			if !evenBrackets(expression)
+			if !evenBrackets(expression,target)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-			elsif !correctasterick(expression)
+			elsif !correctasterick(expression,target)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
 			else
@@ -145,8 +154,10 @@ class Regex1
 		exFile.close
 		tarFile.close
 		rescue
-			puts "Arguments given are not files"
+			puts "Error parsing expression, please try again"
+			exit
 		end
+
 
 	end
 end
