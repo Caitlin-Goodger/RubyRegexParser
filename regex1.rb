@@ -6,12 +6,16 @@ class Regex1
 	end
 
 
+	# Check that there an even number of opening and closing brackets
 	def self.evenBrackets(expression,target)
 		openBrackets = expression.count("(")
 		closeBrackets = expression.count(")")
 		return openBrackets == closeBrackets
 	end
 
+	# Check that there aren't astrisks in places there should be
+	#  A regex can't start with *
+	# And it can't come after an opening bracket or an or
 	def self.correctasterick(expression,target)
 		if expression[0] == "*"
 			return false
@@ -26,6 +30,9 @@ class Regex1
 		return true
 	end
 
+	# Find the end bracket.
+	# Count up all the opening brackets and once they are all closed then return the index of the next closing bracket
+	# If that doesn't work and you keept going up without reaching 0, then return if you reach 42
 	def self.findEndBracket(expression,target)
 		endBracket = 0
 		i = 1
@@ -44,6 +51,8 @@ class Regex1
 	end
 
 
+	# Main matching method.
+	# Checks the first character of expression and performs parsing depending on what it is
 	def self.completeMatching(expression, target)
 		if (expression.nil? || expression.empty?) && (target.nil? || target.empty?)
 			return true
@@ -58,10 +67,15 @@ class Regex1
 		end
 	end
 
+	# Match for an astrisk
+	# Look to see if the first characters match and then look at what comes after
 	def self.astrickMatch(expression, target)
-		compareFirst(expression[0], target[0]) && completeMatching(expression, target.drop(1)) || completeMatching(expression.drop(2), target)
+		return compareFirst(expression[0], target[0]) && completeMatching(expression, target.drop(1)) || completeMatching(expression.drop(2), target)
 	end
 
+	# Match for a bracket
+	# Find the closing bracket and then look at what is inside the bracket
+	# Depends on whether there is an * or an or
 	def self.bracketMatch (expression, target)
 		endBracketIndex = findEndBracket(expression,target)
 		bracket = expression[1, endBracketIndex-1]
@@ -93,13 +107,16 @@ class Regex1
 		end
 	end
 
+	# Check for or
+	# Look at both sides of the or and compare to see which matches the target
 	def self.orMatch(expression, target)
 		orIndex = expression.index("|")
 		beforeOr = expression[0, orIndex]
 		afterOr = expression[orIndex+1, expression.size]
-		completeMatching(beforeOr, target) || completeMatching(afterOr, target)
+		return completeMatching(beforeOr, target) || completeMatching(afterOr, target)
 	end
 
+	# Compare the first character of the expression and target to see if they match
 	def self.compareFirst(expression, target)
 		if target.nil? || target.empty?
 			return false
