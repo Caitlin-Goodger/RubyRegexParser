@@ -88,8 +88,7 @@ class Regex1
 				orIndex = bracket.index("|")
 				beforeOr = bracket[0, orIndex]
 				afterOr = bracket[orIndex+1, bracket.size]
-				return (completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
-					(completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
+				return (completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) || (completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
 
 			else
 				return (completeMatching(bracket, target[0, bracket.size]) && completeMatching(expression, target.drop(bracket.size))) || completeMatching(left, target)
@@ -99,8 +98,7 @@ class Regex1
 			orIndex = bracket.index("|")
 			beforeOr = bracket[0, orIndex]
 			afterOr = bracket[orIndex+1, bracket.size]
-			return completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(left, target.drop(beforeOr.size)) ||
-				completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(left, target.drop(afterOr.size))
+			return completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(left, target.drop(beforeOr.size)) || completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(left, target.drop(afterOr.size))
 		else
 			left = expression.drop(endBracketIndex + 1)
 			return completeMatching(bracket, target[0, bracket.size]) && completeMatching(left, target.drop(bracket.size))
@@ -178,4 +176,6 @@ class Regex1
 
 	end
 end
+
+# I took some idea of how to create your own parsing from https://nickdrane.com/build-your-own-regex/. It gave me an idea of where to start this program and how to parse an expression
 
