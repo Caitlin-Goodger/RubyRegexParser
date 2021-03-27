@@ -47,7 +47,6 @@ class Regex1
 		endBracketIndex = findEndBracket(expression)
 		bracket = expression[1, endBracketIndex-1]
 		if bracket.last == "*"
-			puts "testing"
 			return false
 		end
 		if expression[endBracketIndex + 1] == "*"
@@ -118,23 +117,15 @@ class Regex1
 	elsif ARGV.size == 2
 		expressions = ARGV[0]
 		targets = ARGV[1]
-
 		begin
 		output = File.open("output.txt","w")
 		exFile = File.open(expressions)
 		exLines = File.read(exFile).split("\n")
 		tarFile = File.open(targets)
 		tarLines = File.read(targets).split("\n")
-		puts exLines.size
 		(0..exLines.size-1).each { |i|
 			expression = exLines[i];
 			target = tarLines[i];
-			# puts expression
-			# puts target
-			match = false
-			# if target == expression
-			# 	puts "YES: " + expression +  " with " + target + "\n"
-			# 	output.write("YES: " + expression +  " with " + target + "\n")
 			if !evenBrackets(expression)
 				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
 				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
@@ -146,8 +137,6 @@ class Regex1
 					puts "YES: " + expression +  " with " + target + "\n"
 					output.write("YES: " + expression +  " with " + target + "\n")
 				else
-					#l = Lex.new(expression)
-					#puts l.get_token()
 					puts "NO: " + expression +  " with " + target + "\n"
 					output.write("NO: " + expression +  " with " + target + "\n")
 				end
@@ -162,43 +151,3 @@ class Regex1
 	end
 end
 
-# class Token
-# 	$name = ""
-# 	$value = ""
-#
-# 	def initialize(n,v)
-# 		$name = n
-# 		$value = v
-# 	end
-#
-# end
-#
-# class Testing
-# 	$pattern = ""
-# 	$symbols = Hash.new()
-# 	$current = 0
-# 	$length = 0;
-#
-# 	def initialize(p)
-# 		$pattern = p;
-# 		$symbols = { "(" => "LEFT_PAREN" , ")" => "RIGHT_PAREN", "*" => "AST", "|" => "OR", "." => "DOT"}
-# 		$current = 0;
-# 		$length = p.length
-# 	end
-#
-# 	def get_token
-# 		if $current < $length
-# 			cur = $pattern[$current]
-# 			$current = $current + 1
-#
-# 			if !$symbols.has_key?(cur)
-# 				return new Token("CHAR",cur)
-# 			else
-# 				return new Token([cur],cur)
-# 			end
-# 		else
-# 			return Token("NONE","")
-# 		end
-# 	end
-# end
-#
