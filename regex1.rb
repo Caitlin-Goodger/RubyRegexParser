@@ -47,33 +47,31 @@ class Regex1
 		endBracketIndex = findEndBracket(expression)
 		bracket = expression[1, endBracketIndex-1]
 		if bracket.last == "*"
+			puts "testing"
 			return false
 		end
 		if expression[endBracketIndex + 1] == "*"
 			left = expression.drop(endBracketIndex + 2)
-			if bracket.include?("|") && findOrIndex(bracket) != 99
-				orIndex = findOrIndex(bracket)
+			if bracket.include?("|")
+				orIndex = bracket.index("|")
 				beforeOr = bracket[0, orIndex]
 				afterOr = bracket[orIndex+1, bracket.size]
-				(completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
+				return (completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(expression, target.drop(beforeOr.size))) || completeMatching(left, target) ||
 					(completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(expression, target.drop(afterOr.size))) || completeMatching(left, target)
 
 			else
-				(completeMatching(bracket, target[0, bracket.size]) && completeMatching(expression, target.drop(bracket.size))) || completeMatching(left, target)
+				return (completeMatching(bracket, target[0, bracket.size]) && completeMatching(expression, target.drop(bracket.size))) || completeMatching(left, target)
 			end
-		elsif bracket.include?("|") && findOrIndex(bracket) != 99
+		elsif bracket.include?("|")
 			left = expression.drop(endBracketIndex + 1)
-			orIndex = findOrIndex(bracket)
+			orIndex = bracket.index("|")
 			beforeOr = bracket[0, orIndex]
 			afterOr = bracket[orIndex+1, bracket.size]
-			completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(left, target.drop(beforeOr.size)) ||
+			return completeMatching(beforeOr, target[0, beforeOr.size]) && completeMatching(left, target.drop(beforeOr.size)) ||
 				completeMatching(afterOr, target[0, afterOr.size]) && completeMatching(left, target.drop(afterOr.size))
 		else
 			left = expression.drop(endBracketIndex + 1)
-			inside = bracket - ["("] - [")"]
-			#puts bracket
-			#puts inside
-			completeMatching(bracket, target[0, inside.size]) && completeMatching(left, target.drop(inside.size))
+			return completeMatching(bracket, target[0, bracket.size]) && completeMatching(left, target.drop(bracket.size))
 		end
 	end
 
@@ -87,9 +85,7 @@ class Regex1
 	def self.compareFirst(expression, target)
 		if target.nil? || target.empty?
 			return false
-		elsif expression == "."
-			return true
-		elsif expression == target
+		elsif expression == "." || expression == target
 			return true
 		else
 			return false
@@ -103,33 +99,14 @@ class Regex1
 			endBracket += 1
 			c = expression[endBracket]
 			if c == "("
-				i += 1
+				i = i + 1
 			elsif c == ")"
-				i -= 1
+				i = i - 1
 			elsif endBracket == 99
 				break
 			end
 		end
-		endBracket
-	end
-
-	def self.findOrIndex(expression)
-		orIndex = -1
-		i = 1
-		while i > 0
-			orIndex += 1
-			c = expression[orIndex]
-			if c == "("
-				i += 1
-			elsif c == ")"
-				i -= 1
-			elsif c == "|"
-				return orIndex
-			elsif orIndex == 99
-				return orIndex
-				break
-			end
-		end
+		return endBracket
 	end
 
 	if ARGV.size < 2
