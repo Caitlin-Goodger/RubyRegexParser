@@ -138,38 +138,38 @@ class Regex1
 		expressions = ARGV[0]
 		targets = ARGV[1]
 		begin
-		output = File.open("output.txt","w")
-		exFile = File.open(expressions)
-		exLines = File.read(exFile).split("\n")
-		tarFile = File.open(targets)
-		tarLines = File.read(targets).split("\n")
+			# output = File.open("output.txt","w")
+			exFile = File.open(expressions)
+			exLines = File.read(exFile).split("\n")
+			tarFile = File.open(targets)
+			tarLines = File.read(targets).split("\n")
 		rescue
 			puts "Arguments given are not files"
 			exit
 		end
 
 		begin
-		(0..exLines.size-1).each { |i|
-			expression = exLines[i];
-			target = tarLines[i];
-			if !evenBrackets(expression,target)
-				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
-				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-			elsif !correctasterick(expression,target)
-				puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
-				output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
-			else
-				if completeMatching(expression.chars, target.chars)
-					puts "YES: " + expression +  " with " + target + "\n"
-					output.write("YES: " + expression +  " with " + target + "\n")
+			(0..exLines.size-1).each { |i|
+				expression = exLines[i];
+				target = tarLines[i];
+				if !evenBrackets(expression,target)
+					puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
+					# output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
+				elsif !correctasterick(expression,target)
+					puts "SYNTAX ERROR: " + expression +  " with " + target + "\n"
+					# output.write("SYNTAX ERROR: " + expression +  " with " + target + "\n")
 				else
-					puts "NO: " + expression +  " with " + target + "\n"
-					output.write("NO: " + expression +  " with " + target + "\n")
+					if completeMatching(expression.chars, target.chars)
+						puts "YES: " + expression +  " with " + target + "\n"
+						# output.write("YES: " + expression +  " with " + target + "\n")
+					else
+						puts "NO: " + expression +  " with " + target + "\n"
+						# output.write("NO: " + expression +  " with " + target + "\n")
+					end
 				end
-			end
-		}
-		exFile.close
-		tarFile.close
+			}
+			exFile.close
+			tarFile.close
 		rescue
 			puts "Error parsing expression, please try again"
 			exit
