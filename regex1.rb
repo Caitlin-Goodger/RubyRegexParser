@@ -142,7 +142,7 @@ class Regex1
 		expressions = ARGV[0]
 		targets = ARGV[1]
 
-
+		begin
 		output = File.open("output.txt","w")
 		exFile = File.open(expressions)
 		exLines = File.read(exFile).split("\n")
@@ -178,6 +178,10 @@ class Regex1
 		}
 		exFile.close
 		tarFile.close
+		rescue
+			puts "Arguments given are not files"
+		end
+
 	end
 end
 
